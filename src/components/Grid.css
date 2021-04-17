@@ -1,0 +1,8 @@
+.grid-container {
+  width: 90vw;
+  height: 50vh;
+  border: 2px solid white;
+  border-radius: 0px 0px 15px 15px;
+  text-align: center;
+  overflow: auto;
+}
