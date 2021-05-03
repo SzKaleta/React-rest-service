@@ -1,41 +1,44 @@
 import "./NewGridElement.css";
 import RemoveCircleIcon from "@material-ui/icons/RemoveCircle";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import { useState } from "react";
+import { useRef } from "react";
+import useHttp from "../hooks/use-http";
+import { actions } from "../store/index";
+import { useDispatch } from "react-redux";
 
 const NewGridElement = (props) => {
+  const dispatch = useDispatch();
+  const firstName = useRef();
+  const lastName = useRef();
+  const age = useRef();
+  let { fetchData } = useHttp();
+
+  const clearInputs = () => {
+    firstName.current.value = "";
+    lastName.current.value = "";
+    age.current.value = "";
+    dispatch(actions.toggleNewUser());
+  };
+
   const onConfirmHandler = () => {
-    let newuser = {firstName: firstName, lastName: lastName, age: age};
-    setFirstName("");
-    setLastName("");
-    setAge("");
-    props.onAdd(false);
-    props.onAcceptData(newuser);
+    const newuser = {
+      firstName: firstName.current.value,
+      lastName: lastName.current.value,
+      age: age.current.value,
+    };
+    fetchData("https://localhost:44353/api/Users", {
+      method: "POST",
+      body: newuser,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    clearInputs();
+    props.onAcceptData((prev)=> !prev);
   };
+
   const onCancelHandler = () => {
-    setFirstName("");
-    setLastName("");
-    setAge("");
-    props.onAdd(false);
-  };
-
-  const [firstName, setFirstName] = useState("");
-  const onFirstNameChangeHandler = (event) => {
-    console.log('event.target.value');
-    setFirstName(event.target.value);
-  };
-
-  const [lastName, setLastName] = useState("");
-  const onLastNameChangeHandler = (event) => {
-    setLastName(event.target.value);
-    console.log(event.target.value);
-
-  };
-
-  const [age, setAge] = useState("");
-  const onAgeChangeHandler = (event) => {
-    setAge(event.target.value);
-    console.log(event.target.value);
+    clearInputs();
   };
 
   return (
@@ -47,22 +50,19 @@ const NewGridElement = (props) => {
         className="filter-input"
         type="text"
         placeholder="First name"
-        value={firstName}
-        onChange={onFirstNameChangeHandler}
+        ref={firstName}
       />
       <input
         className="filter-input"
         type="text"
-        value={lastName}
+        ref={lastName}
         placeholder="Last name"
-        onChange={onLastNameChangeHandler}
       />
       <input
         className="filter-input"
         type="number"
         placeholder="Age"
-        value={age}
-        onChange={onAgeChangeHandler}
+        ref={age}
       />
       <div className="grid-icon" onClick={onConfirmHandler}>
         <CheckCircleIcon fontSize="large" htmlColor="#66ff66" />
